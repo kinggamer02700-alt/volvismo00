@@ -41,3 +41,45 @@ Este jogo transforma esse conceito em uma experiência divertida e educativa!
 ---
 
 ## 📁 Estrutura do Repositório
+
+---
+
+## 🚀 Como Publicar no GitHub Pages (em 2 minutos)
+
+1. Crie um repositório novo no GitHub
+2. Faça upload dos dois arquivos (`index.html` + `README.md`)
+3. Vá em **Settings → Pages**
+4. Em “Source”, escolha **Deploy from a branch** → `main` → **Save**
+5. Espere 30 segundos e acesse:  
+   `https://SEUUSUARIO.github.io/volvismo-3d-quiz`
+
+Pronto! Seu jogo educativo estará online para todo mundo jogar.
+
+---
+
+## 📝 Perguntas do Jogo
+Todas as 6 perguntas e respostas foram retiradas **exatamente** do texto que você forneceu:
+
+- O que é o Volvismo?
+- Em qual período e país foi desenvolvido?
+- Qual é o foco principal?
+- O que substitui a linha de montagem rígida?
+- Principais características
+- Qual lógica o Volvismo inverte?
+
+---
+
+## 👨‍💻 Criado por
+**Baseado na sua solicitação**  
+Tema 3D em terceira pessoa + sistema de perguntas e respostas sobre Volvismo
+
+Quer adicionar mais perguntas, sons, leaderboards ou modo multiplayer? É só pedir! 🚀
+
+---
+
+**Divirta-se transformando a fábrica!**  
+🔧 *O trabalhador agora dita o ritmo.*
+
+---
+
+⭐ Se gostou, deixe uma estrela no repositório!
