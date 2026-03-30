@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volvismo 3D • Fábrica Autônoma</title>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: 'Arial', sans-serif; }
+        canvas { display: block; }
+        
+        #hud {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(0, 48, 135, 0.85);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        #instructions {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.75);
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 15px;
+            max-width: 420px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            z-index: 100;
+            line-height: 1.4;
+        }
+        
+        #modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        #modal-content {
+            background: white;
+            width: 90%;
+            max-width: 620px;
+            border-radius: 20px;
+            padding: 35px 40px;
+            box-shadow: 0 10px 40px rgba(0, 48, 135, 0.4);
+            text-align: center;
+            color: #222;
+        }
+        
+        #modal-content h2 {
+            color: #003087;
+            margin: 0 0 25px 0;
+            font-size: 28px;
+        }
+        
+        .option-btn {
+            display: block;
+            width: 100%;
+            padding: 16px 20px;
+            margin: 12px 0;
+            font-size: 18px;
+            background: #f0f0f0;
+            border: 3px solid #003087;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+        
+        .option-btn:hover {
+            background: #003087;
+            color: white;
+            transform: scale(1.03);
+        }
+        
+        #feedback {
+            margin-top: 20px;
+            font-size: 22px;
+            font-weight: bold;
+            min-height: 40px;
+        }
+        
+        #end-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 48, 135, 0.95);
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            color: white;
+            text-align: center;
+        }
+        
+        .title {
+            font-size: 42px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px #ffcc00;
+        }
+        
+        .subtitle {
+            font-size: 24px;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <!-- HUD -->
+    <div id="hud">
+        <span>🔧 Volvismo 3D</span>
+        <span>Pontuação: <span id="score">0</span>/6</span>
+    </div>
+
+    <!-- Instruções -->
+    <div id="instructions">
+        👷‍♂️ Controle o trabalhador autônomo com <strong>WASD</strong><br>
+        Aproxime-se dos <strong>orbes laranja</strong> para responder perguntas sobre o Volvismo!<br>
+        <small>Você está na famosa fábrica sueca dos anos 70</small>
+    </div>
+
+    <!-- Modal do Quiz -->
+    <div id="modal">
+        <div id="modal-content">
+            <h2 id="questionText">Pergunta sobre Volvismo</h2>
+            <div id="options"></div>
+            <div id="feedback"></div>
+        </div>
+    </div>
+
+    <!-- Tela de Fim -->
+    <div id="end-screen">
+        <div>
+            <div class="title">🏆 PARABÉNS!</div>
+            <div class="subtitle">Você dominou o Volvismo!</div>
+            <p style="font-size: 28px; margin: 20px 0;">Pontuação final: <span id="final-score" style="color:#ffcc00;">0</span>/6</p>
+            <p style="max-width: 420px; margin: 0 auto 30px; opacity: 0.9;">
+                Você transformou a linha de montagem rígida em grupos autônomos.<br>
+                O trabalhador agora dita o ritmo!
+            </p>
+            <button onclick="restartGame()" 
+                    style="background:#ffcc00; color:#003087; border:none; padding:18px 40px; font-size:22px; border-radius:50px; cursor:pointer; font-weight:bold;">
+                JOGAR NOVAMENTE
+            </button>
+            <p style="margin-top:30px; font-size:14px; opacity:0.7;">
+                Tema baseado no texto fornecido • Desenvolvido com Three.js para GitHub
+            </p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script>
+        // === PERGUNTAS E RESPOSTAS BASEADAS NO TEXTO DE EXEMPLO ===
+        const questions = [
+            {
+                q: "O que é o Volvismo?",
+                options: [
+                    "Um modelo de produção industrial desenvolvido pela Volvo na Suécia",
+                    "Uma linha de montagem robótica japonesa",
+                    "Um sistema de produção em massa americano",
+                    "Uma técnica de automação total sem trabalhadores"
+                ],
+                correct: 0
+            },
+            {
+                q: "Em qual período e país foi desenvolvido o Volvismo?",
+                options: [
+                    "Décadas de 1960 e 1970, na Suécia",
+                    "Anos 1980, na Alemanha",
+                    "Anos 1950, nos Estados Unidos",
+                    "Anos 2000, no Japão"
+                ],
+                correct: 0
+            },
+            {
+                q: "Qual é o foco principal do Volvismo?",
+                options: [
+                    "A valorização do trabalhador",
+                    "Aumentar a velocidade da linha de montagem a qualquer custo",
+                    "Reduzir ao máximo o número de funcionários",
+                    "Manter a máquina como única responsável pelo ritmo"
+                ],
+                correct: 0
+            },
+            {
+                q: "O que substitui a linha de montagem rígida no Volvismo?",
+                options: [
+                    "Grupos autônomos de trabalhadores",
+                    "Robôs que trabalham 24h sem pausa",
+                    "Linha de montagem ainda mais rápida e rígida",
+                    "Trabalho individual isolado em estações"
+                ],
+                correct: 0
+            },
+            {
+                q: "Quais são as principais características do Volvismo?",
+                options: [
+                    "Treinamento contínuo, alta qualificação, maior ergonomia e automação flexível",
+                    "Ritmo ditado exclusivamente pela máquina",
+                    "Baixa qualificação e pouca ergonomia",
+                    "Eliminação total de automação"
+                ],
+                correct: 0
+            },
+            {
+                q: "Qual lógica o Volvismo inverte?",
+                options: [
+                    "A lógica de que a máquina dita o ritmo de trabalho",
+                    "A lógica de que o trabalhador deve ser ignorado",
+                    "A lógica de grupos autônomos",
+                    "A lógica de treinamento contínuo"
+                ],
+                correct: 0
+            }
+        ];
+
+        // Variáveis globais do jogo
+        let scene, camera, renderer;
+        let character;
+        let orbs = [];
+        let score = 0;
+        let answeredCount = 0;
+        let totalQuestions = questions.length;
+        let isModalOpen = false;
+        let keys = {};
+
+        function initThree() {
+            // Cena básica
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x88aabb); // Céu sueco levemente industrial
+
+            // Câmera em terceira pessoa
+            camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            document.body.appendChild(renderer.domElement);
+
+            // Luzes (ambiente de fábrica)
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffeecc, 1.2);
+            directionalLight.position.set(30, 50, 30);
+            directionalLight.castShadow = true;
+            scene.add(directionalLight);
+
+            // Chão da fábrica (estilo Volvo Kalmar)
+            const floorGeo = new THREE.PlaneGeometry(120, 120);
+            const floorMat = new THREE.MeshLambertMaterial({ 
+                color: 0x555577,
+                flatShading: true 
+            });
+            const floor = new THREE.Mesh(floorGeo, floorMat);
+            floor.rotation.x = -Math.PI / 2;
+            floor.receiveShadow = true;
+            scene.add(floor);
+
+            // Adiciona elementos de fábrica (estações de grupos autônomos)
+            for (let i = 0; i < 12; i++) {
+                const station = new THREE.Mesh(
+                    new THREE.BoxGeometry(4, 2.5, 4),
+                    new THREE.MeshLambertMaterial({ color: 0x334455 })
+                );
+                const angle = (i * Math.PI * 2) / 12 + (Math.random() * 0.5);
+                station.position.set(
+                    Math.cos(angle) * 32,
+                    1.25,
+                    Math.sin(angle) * 32
+                );
+                station.castShadow = true;
+                station.receiveShadow = true;
+                scene.add(station);
+                
+                // Pequena luz em cada estação (simboliza ergonomia)
+                const stationLight = new THREE.PointLight(0x66ffaa, 0.6, 15);
+                stationLight.position.copy(station.position);
+                stationLight.position.y += 4;
+                scene.add(stationLight);
+            }
+
+            // Personagem (trabalhador autônomo)
+            character = new THREE.Group();
+            
+            // Corpo
+            const body = new THREE.Mesh(
+                new THREE.BoxGeometry(1.8, 2.8, 1.2),
+                new THREE.MeshLambertMaterial({ color: 0x003087 }) // cor Volvo
+            );
+            body.position.y = 2;
+            body.castShadow = true;
+            character.add(body);
+            
+            // Cabeça
+            const head = new THREE.Mesh(
+                new THREE.SphereGeometry(0.7, 32, 32),
+                new THREE.MeshLambertMaterial({ color: 0xffddbb })
+            );
+            head.position.set(0, 4.2, 0);
+            head.castShadow = true;
+            character.add(head);
+            
+            // Capacete de segurança (detalhe temático)
+            const helmet = new THREE.Mesh(
+                new THREE.SphereGeometry(0.75, 32, 32),
+                new THREE.MeshLambertMaterial({ color: 0xffcc00 })
+            );
+            helmet.position.set(0, 4.3, 0);
+            helmet.scale.set(0.95, 0.6, 0.95);
+            character.add(helmet);
+            
+            character.position.set(0, 0.1, 0);
+            scene.add(character);
+
+            // Cria os orbes de conhecimento (6 orbes espalhados)
+            orbs = [];
+            const radius = 28;
+            for (let i = 0; i < questions.length; i++) {
+                const orbGroup = new THREE.Group();
+                
+                const orb = new THREE.Mesh(
+                    new THREE.SphereGeometry(1.8, 32, 32),
+                    new THREE.MeshPhongMaterial({ 
+                        color: 0xff8800,
+                        emissive: 0xff4400,
+                        shininess: 100,
+                        emissiveIntensity: 0.8
+                    })
+                );
+                orb.castShadow = true;
+                orbGroup.add(orb);
+                
+                // Anel giratório (efeito visual legal)
+                const ring = new THREE.Mesh(
+                    new THREE.TorusGeometry(2.4, 0.2, 16, 32),
+                    new THREE.MeshPhongMaterial({ color: 0xffffff, emissive: 0x88ffff })
+                );
+                ring.rotation.x = Math.PI / 2;
+                orbGroup.add(ring);
+                
+                // Posiciona em círculo ao redor do personagem
+                const angle = (i * Math.PI * 2) / questions.length;
+                orbGroup.position.set(
+                    Math.cos(angle) * radius,
+                    3,
+                    Math.sin(angle) * radius
+                );
+                
+                scene.add(orbGroup);
+                orbs.push({
+                    group: orbGroup,
+                    mesh: orb,
+                    ring: ring,
+                    qIndex: i,
+                    answered: false,
+                    pulse: 0
+                });
+            }
+
+            // Posição inicial da câmera (terceira pessoa)
+            updateCamera();
+        }
+
+        function updateCamera() {
+            const offset = new THREE.Vector3(0, 12, 22);
+            camera.position.copy(character.position).add(offset);
+            camera.lookAt(character.position.x, character.position.y + 3, character.position.z);
+        }
+
+        function handleMovement() {
+            const speed = 0.45;
+            let moving = false;
+
+            if (keys['w'] || keys['ArrowUp']) {
+                character.position.z -= speed;
+                moving = true;
+            }
+            if (keys['s'] || keys['ArrowDown']) {
+                character.position.z += speed;
+                moving = true;
+            }
+            if (keys['a'] || keys['ArrowLeft']) {
+                character.position.x -= speed;
+                moving = true;
+            }
+            if (keys['d'] || keys['ArrowRight']) {
+                character.position.x += speed;
+                moving = true;
+            }
+
+            // Limita o personagem dentro da fábrica
+            character.position.x = Math.max(-45, Math.min(45, character.position.x));
+            character.position.z = Math.max(-45, Math.min(45, character.position.z));
+
+            if (moving) updateCamera();
+        }
+
+        function checkProximity() {
+            if (isModalOpen) return;
+
+            for (let i = 0; i < orbs.length; i++) {
+                const orb = orbs[i];
+                if (orb.answered) continue;
+
+                const distance = character.position.distanceTo(orb.group.position);
+                
+                if (distance < 6) {
+                    isModalOpen = true;
+                    orb.answered = true;
+                    showQuiz(orb.qIndex);
+                    // Efeito visual: orb some lentamente
+                    orb.mesh.material.emissive.setHex(0x00ff00);
+                    return;
+                }
+            }
+        }
+
+        function animateOrbs() {
+            orbs.forEach(orb => {
+                if (!orb.answered) {
+                    orb.pulse += 0.03;
+                    const scale = 1 + Math.sin(orb.pulse) * 0.15;
+                    orb.mesh.scale.set(scale, scale, scale);
+                    orb.ring.rotation.z += 0.015;
+                }
+            });
+        }
+
+        function showQuiz(index) {
+            const modal = document.getElementById('modal');
+            const content = document.getElementById('modal-content');
+            const questionEl = document.getElementById('questionText');
+            const optionsEl = document.getElementById('options');
+            const feedbackEl = document.getElementById('feedback');
+
+            questionEl.textContent = questions[index].q;
+            optionsEl.innerHTML = '';
+            feedbackEl.innerHTML = '';
+
+            questions[index].options.forEach((optionText, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = optionText;
+                btn.onclick = () => handleAnswer(i, index, btn);
+                optionsEl.appendChild(btn);
+            });
+
+            modal.style.display = 'flex';
+        }
+
+        function handleAnswer(selectedIndex, qIndex, clickedBtn) {
+            const isCorrect = selectedIndex === questions[qIndex].correct;
+            const feedbackEl = document.getElementById('feedback');
+            
+            // Desabilita todos os botões
+            const allBtns = document.querySelectorAll('.option-btn');
+            allBtns.forEach(b => b.disabled = true);
+            
+            if (isCorrect) {
+                score++;
+                document.getElementById('score').textContent = `${score}/${totalQuestions}`;
+                feedbackEl.innerHTML = `✅ <strong>Correto!</strong> Você valorizou o trabalhador!`;
+                feedbackEl.style.color = '#00aa44';
+            } else {
+                feedbackEl.innerHTML = `❌ Resposta incorreta.<br>A resposta certa era a opção ${questions[qIndex].correct + 1}`;
+                feedbackEl.style.color = '#cc0000';
+            }
+
+            // Fecha o modal automaticamente após feedback
+            setTimeout(() => {
+                document.getElementById('modal').style.display = 'none';
+                isModalOpen = false;
+                answeredCount++;
+
+                if (answeredCount >= totalQuestions) {
+                    setTimeout(showEndScreen, 800);
+                }
+            }, 1600);
+        }
+
+        function showEndScreen() {
+            const endScreen = document.getElementById('end-screen');
+            document.getElementById('final-score').textContent = `${score}/${totalQuestions}`;
+            endScreen.style.display = 'flex';
+        }
+
+        function restartGame() {
+            // Reset tudo
+            location.reload();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            handleMovement();
+            checkProximity();
+            animateOrbs();
+            
+            renderer.render(scene, camera);
+        }
+
+        function startGame() {
+            initThree();
+            animate();
+
+            // Controles de teclado
+            window.addEventListener('keydown', (e) => {
+                keys[e.key.toLowerCase()] = true;
+            });
+            
+            window.addEventListener('keyup', (e) => {
+                keys[e.key.toLowerCase()] = false;
+            });
+
+            // Responsivo
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            console.log('%c🎮 Volvismo 3D iniciado! Tema baseado no seu texto de exemplo.', 'color:#003087; font-size:14px');
+        }
+
+        // Inicia o jogo automaticamente
+        window.onload = startGame;
+    </script>
+</body>
+</html>
