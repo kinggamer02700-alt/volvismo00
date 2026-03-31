@@ -2,135 +2,111 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Volvismo 3D • Fábrica Autônoma</title>
     <style>
-        body { margin: 0; overflow: hidden; font-family: 'Arial', sans-serif; background: #001122; }
+        body { margin: 0; overflow: hidden; font-family: 'Arial', sans-serif; background: #001122; touch-action: none; }
         canvas { display: block; }
 
-        #start-screen {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: linear-gradient(135deg, #003087, #112233);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 3000;
-            color: white;
-            text-align: center;
-            transition: opacity 1s ease;
-        }
-        #start-content {
-            max-width: 680px;
-        }
-        .title-start {
-            font-size: 62px;
-            font-weight: bold;
-            margin: 0;
-            text-shadow: 0 0 30px #ffcc00;
-            letter-spacing: 4px;
-        }
-        .subtitle-start {
-            font-size: 28px;
-            margin: 15px 0 40px;
-            opacity: 0.95;
-        }
-        .btn-start {
-            background: #ffcc00;
-            color: #003087;
-            border: none;
-            padding: 22px 60px;
-            font-size: 28px;
-            font-weight: bold;
-            border-radius: 60px;
-            cursor: pointer;
-            box-shadow: 0 10px 30px rgba(255, 204, 0, 0.6);
-            transition: all 0.3s;
-        }
-        .btn-start:hover {
-            transform: scale(1.08);
-            box-shadow: 0 15px 40px rgba(255, 204, 0, 0.8);
-        }
+        #start-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #003087, #112233); display: flex; align-items: center; justify-content: center; z-index: 3000; color: white; text-align: center; }
+        .title-start { font-size: 62px; font-weight: bold; text-shadow: 0 0 30px #ffcc00; letter-spacing: 4px; }
+        .mode-container { display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; }
+        .mode-btn { background: #ffcc00; color: #003087; border: none; padding: 20px 50px; font-size: 26px; font-weight: bold; border-radius: 60px; cursor: pointer; box-shadow: 0 10px 30px rgba(255,204,0,0.6); min-width: 220px; }
 
-        #hud, #instructions, #toggle-hud, #crosshair { /* mesmos estilos do anterior */ }
-        #hud { position: absolute; top: 15px; left: 15px; background: rgba(0, 48, 135, 0.92); color: white; padding: 12px 20px; border-radius: 15px; font-size: 19px; font-weight: bold; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); z-index: 100; display: flex; align-items: center; gap: 15px; border: 2px solid #ffcc00; }
-        #toggle-hud { position: absolute; top: 20px; right: 20px; background: #ffcc00; color: #003087; border: none; padding: 8px 14px; border-radius: 50px; font-size: 14px; font-weight: bold; cursor: pointer; z-index: 110; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-        #crosshair { position: absolute; top: 50%; left: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px; pointer-events: none; color: rgba(255, 204, 0, 0.8); font-size: 32px; display: none; z-index: 200; text-shadow: 0 0 8px #000; }
-        #instructions { position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); background: rgba(0, 48, 135, 0.9); color: #fff; padding: 15px 30px; border-radius: 15px; text-align: center; font-size: 16px; max-width: 520px; box-shadow: 0 6px 25px rgba(0, 0, 0, 0.5); z-index: 100; line-height: 1.5; border: 2px solid #ffcc00; }
-        
-        #modal, #end-screen, #game-over-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); align-items: center; justify-content: center; z-index: 1000; }
-        #modal-content { background: linear-gradient(180deg, #ffffff, #f0f4ff); width: 92%; max-width: 680px; border-radius: 24px; padding: 40px 45px; box-shadow: 0 15px 50px rgba(0, 48, 135, 0.5); text-align: center; color: #003087; border: 6px solid #ffcc00; }
-        #modal-content h2 { margin: 0 0 30px 0; font-size: 29px; color: #003087; }
-        .option-btn { display: block; width: 100%; padding: 18px 25px; margin: 14px 0; font-size: 18px; background: #f8f8f8; border: 4px solid #003087; border-radius: 16px; cursor: pointer; transition: all 0.25s; text-align: left; font-weight: 500; }
-        .option-btn:hover { background: #003087; color: white; transform: translateY(-3px) scale(1.04); }
-        #feedback { margin-top: 25px; font-size: 24px; font-weight: bold; min-height: 50px; }
-        .title { font-size: 48px; margin-bottom: 10px; text-shadow: 0 0 30px #ffcc00; }
+        #hud { position: absolute; top: 15px; left: 15px; background: rgba(0,48,135,0.92); color: white; padding: 12px 20px; border-radius: 15px; font-size: 19px; font-weight: bold; z-index: 100; display: flex; align-items: center; gap: 15px; border: 2px solid #ffcc00; }
+        #phase-info { position: absolute; top: 80px; left: 15px; background: rgba(255,204,0,0.9); color: #003087; padding: 8px 18px; border-radius: 50px; font-weight: bold; z-index: 100; }
+        #toggle-hud { position: absolute; top: 20px; right: 20px; background: #ffcc00; color: #003087; border: none; padding: 8px 14px; border-radius: 50px; font-size: 14px; cursor: pointer; z-index: 110; }
+        #crosshair { position: absolute; top: 50%; left: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px; pointer-events: none; color: rgba(255,204,0,0.8); font-size: 32px; display: none; z-index: 200; }
+
+        #mobile-controls { position: absolute; bottom: 30px; left: 30px; display: none; z-index: 150; }
+        #joystick-base { width: 160px; height: 160px; background: rgba(255,255,255,0.25); border: 6px solid #ffcc00; border-radius: 50%; position: relative; }
+        #joystick-knob { width: 60px; height: 60px; background: #ffcc00; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+
+        #jumpscare { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ff0000; opacity: 0; pointer-events: none; z-index: 4000; transition: opacity 0.08s; }
+
+        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; z-index: 1000; }
+        #modal-content { background: linear-gradient(180deg,#fff,#f0f4ff); width:92%; max-width:680px; border-radius:24px; padding:40px 45px; box-shadow:0 15px 50px rgba(0,48,135,0.5); text-align:center; color:#003087; border:6px solid #ffcc00; }
+        .option-btn { display:block; width:100%; padding:18px 25px; margin:14px 0; font-size:18px; background:#f8f8f8; border:4px solid #003087; border-radius:16px; cursor:pointer; transition:all .25s; text-align:left; font-weight:500; }
+        #feedback { margin-top:25px; font-size:24px; font-weight:bold; min-height:50px; }
     </style>
 </head>
 <body>
-    <!-- TELA DE PLAY (novo!) -->
+
+    <!-- Tela inicial -->
     <div id="start-screen">
-        <div id="start-content">
+        <div>
             <h1 class="title-start">🔧 VOLVISMO 3D</h1>
             <p class="subtitle-start">Fábrica Autônoma da Volvo • Anos 70</p>
-            <p style="font-size:22px; max-width:480px; margin:0 auto 40px; opacity:0.9;">
-                Você é um trabalhador autônomo.<br>
-                Valorize o ser humano. Dite o ritmo da produção.
-            </p>
-            <button class="btn-start" onclick="startTheGame()">INICIAR JOGO</button>
-            <p style="margin-top:50px; font-size:15px; opacity:0.7;">
-                Controles: WASD + Mouse • Tema baseado no seu texto original
-            </p>
+            <div class="mode-container">
+                <button class="mode-btn" onclick="startGame('pc')">🖥️ MODO PC</button>
+                <button class="mode-btn" onclick="startGame('mobile')">📱 MODO CELULAR</button>
+            </div>
         </div>
     </div>
 
-    <!-- HUD, botão de esconder, crosshair, etc. -->
+    <!-- HUD -->
     <div id="hud">
         <span>🔧 VOLVISMO 3D</span>
-        <span>Pontuação: <span id="score">0</span>/10</span>
+        <span>Fase <span id="phase-text">1</span> • <span id="score">0</span>/20</span>
         <span id="lives-display">❤️❤️❤️❤️❤️</span>
         <span id="sound-toggle" style="cursor:pointer; font-size:24px;">🔊</span>
     </div>
+    <div id="phase-info">Fase 1 - Fábrica Kalmar</div>
     <button id="toggle-hud">⨯ Esconder HUD</button>
     <div id="crosshair">+</div>
-    <div id="instructions">
-        👷‍♂️ <strong>WASD</strong> ou setas → mover<br>
-        🖱️ <strong>Clique na tela</strong> → trava o mouse<br>
-        <strong>ESC</strong> → solta o mouse<br>
-        Aproxime-se dos <strong>orbes laranja</strong>!<br>
-        <small>Você está DENTRO da fábrica Kalmar da Volvo</small>
+    <div id="instructions">Aproxime-se dos orbes laranja!</div>
+
+    <!-- Analógico Mobile -->
+    <div id="mobile-controls">
+        <div id="joystick-base"><div id="joystick-knob"></div></div>
     </div>
 
-    <!-- Modal, vitória e game over (mesmo do anterior) -->
+    <!-- Jumpscare -->
+    <div id="jumpscare"></div>
+
+    <!-- Modal -->
     <div id="modal">
         <div id="modal-content">
-            <h2 id="questionText">Pergunta sobre Volvismo</h2>
+            <h2 id="questionText"></h2>
             <div id="options"></div>
             <div id="feedback"></div>
         </div>
     </div>
-    <div id="end-screen">
+
+    <!-- Vitória -->
+    <div id="end-screen" style="display:none">
         <div>
-            <div class="title">🏆 PARABÉNS, TRABALHADOR AUTÔNOMO!</div>
-            <p style="font-size: 26px; margin: 20px 0;">Você dominou o Volvismo!</p>
-            <p style="font-size: 32px; color:#ffcc00;">Pontuação final: <span id="final-score">0</span>/10</p>
-            <button onclick="restartGame()" style="background:#ffcc00; color:#003087; border:none; padding:20px 50px; font-size:24px; border-radius:50px; cursor:pointer; font-weight:bold; box-shadow:0 8px 25px rgba(255,204,0,0.5);">JOGAR NOVAMENTE</button>
+            <div class="title">🏆 PARABÉNS!</div>
+            <p style="font-size:26px;margin:20px 0;">Você completou as 2 fases do Volvismo!</p>
+            <p style="font-size:32px;color:#ffcc00;">Pontuação final: <span id="final-score">0</span>/20</p>
+            <button onclick="restartGame()" style="background:#ffcc00;color:#003087;border:none;padding:20px 50px;font-size:24px;border-radius:50px;cursor:pointer;font-weight:bold;">JOGAR NOVAMENTE</button>
         </div>
     </div>
-    <div id="game-over-screen">
+
+    <!-- Game Over -->
+    <div id="game-over-screen" style="display:none">
         <div>
             <div class="title" style="color:#ff4444;">💥 VOCÊ FOI DEMITIDO!</div>
-            <p style="font-size: 26px; margin: 20px 0;">Suas vidas acabaram...</p>
-            <p style="font-size: 28px;">Pontuação: <span id="game-over-score" style="color:#ffcc00;">0</span>/10</p>
-            <button onclick="restartGame()" style="background:#ff4444; color:white; border:none; padding:18px 45px; font-size:22px; border-radius:50px; cursor:pointer; font-weight:bold;">TENTAR NOVAMENTE</button>
+            <p style="font-size:26px;margin:20px 0;">Suas vidas acabaram...</p>
+            <button onclick="restartGame()" style="background:#ff4444;color:white;border:none;padding:18px 45px;font-size:22px;border-radius:50px;cursor:pointer;font-weight:bold;">TENTAR NOVAMENTE</button>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script>
-        // ==================== PERGUNTAS (mesmas) ====================
-        const questions = [ /* ... as 10 perguntas iguais às versões anteriores ... */ 
+        let scene, camera, renderer, character, orbs = [], door;
+        let score = 0, lives = 5, answeredCount = 0, currentPhase = 1;
+        let isModalOpen = false, keys = {}, yaw = Math.PI * 1.8;
+        let cameraDistance = 22, cameraHeight = 14;
+        let audioContext, soundEnabled = true;
+        let isPointerLocked = false;
+        let hudVisible = true;
+        let gameStarted = false;
+        let mobileMode = false;
+        let analogX = 0, analogY = 0;
+
+        // Perguntas Fase 1
+        const phase1Questions = [
             { q: "O que é o Volvismo?", options: ["Um modelo de produção industrial desenvolvido pela Volvo na Suécia","Uma linha de montagem robótica japonesa","Um sistema de produção em massa americano","Uma técnica de automação total sem trabalhadores"], correct: 0 },
             { q: "Em qual período e país foi desenvolvido o Volvismo?", options: ["Décadas de 1960 e 1970, na Suécia","Anos 1980, na Alemanha","Anos 1950, nos Estados Unidos","Anos 2000, no Japão"], correct: 0 },
             { q: "Qual é o foco principal do Volvismo?", options: ["A valorização do trabalhador","Aumentar a velocidade da linha de montagem a qualquer custo","Reduzir ao máximo o número de funcionários","Manter a máquina como única responsável pelo ritmo"], correct: 0 },
@@ -143,16 +119,22 @@
             { q: "O Volvismo é considerado um modelo focado em:", options: ["Humanização do trabalho industrial","Automação completa sem humanos","Produção em massa tradicional","Trabalho repetitivo e monótono"], correct: 0 }
         ];
 
-        let scene, camera, renderer, character, orbs = [];
-        let score = 0, lives = 5, answeredCount = 0, totalQuestions = questions.length;
-        let isModalOpen = false, keys = {}, yaw = Math.PI * 1.8;
-        let cameraDistance = 22, cameraHeight = 14;
-        let audioContext, soundEnabled = true;
-        let isPointerLocked = false;
-        let hudVisible = true;
-        let gameStarted = false;
+        // Perguntas Fase 2 (novas)
+        const phase2Questions = [
+            { q: "Qual fábrica da Volvo ficou famosa pelo Volvismo?", options: ["Fábrica de Kalmar","Fábrica de Göteborg","Fábrica de São Paulo","Fábrica de Detroit"], correct: 0 },
+            { q: "O Volvismo é considerado um dos primeiros modelos de:", options: ["Produção sociotécnica","Produção em massa","Just-in-time","Automação total"], correct: 0 },
+            { q: "No Volvismo, quem define o ritmo de trabalho?", options: ["Os grupos autônomos de trabalhadores","A máquina","Os robôs","A gerência central"], correct: 0 },
+            { q: "Qual foi uma grande inovação do Volvismo?", options: ["Trabalhadores decidiam a ordem das tarefas","Linha de montagem mais rápida","Redução total de pausas","Eliminação de treinamento"], correct: 0 },
+            { q: "No Volvismo, a automação era:", options: ["Flexível e a serviço do trabalhador","Rígida e ditando o ritmo","Total e sem humanos","Proibida"], correct: 0 },
+            { q: "O que acontecia com os trabalhadores no Volvismo?", options: ["Recebiam treinamento contínuo e alta qualificação","Eram substituídos por robôs","Trabalhavam isolados","Perdiam direitos"], correct: 0 },
+            { q: "A porta branca representa:", options: ["A transição para o trabalho em grupos autônomos","A saída da fábrica","A entrada da linha rígida","O fim do Volvismo"], correct: 0 },
+            { q: "O Volvismo ajudou a inspirar qual conceito moderno?", options: ["Humanização do trabalho","Trabalho repetitivo","Produção fordista","Automação sem humanos"], correct: 0 },
+            { q: "Qual era o grande objetivo do Volvismo?", options: ["Valorizar o trabalhador e sua autonomia","Aumentar a velocidade a qualquer custo","Reduzir custos com mão de obra","Eliminar completamente o ser humano"], correct: 0 },
+            { q: "O Volvismo foi um marco porque:", options: ["Colocou o trabalhador no centro da produção","Aumentou a rigidez da linha","Reduziu drasticamente o número de funcionários","Eliminou a ergonomia"], correct: 0 }
+        ];
 
-        // Sons (mesmos)
+        let currentQuestions = phase1Questions;
+
         function playBeep(freq, duration, type = 'sine', volume = 0.7) {
             if (!soundEnabled || !audioContext) return;
             const osc = audioContext.createOscillator();
@@ -162,12 +144,69 @@
             osc.start();
             setTimeout(() => { gain.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.05); osc.stop(audioContext.currentTime + 0.2); }, duration);
         }
-        function playCollectSound() { playBeep(520,90); setTimeout(()=>playBeep(780,110),70); setTimeout(()=>playBeep(1100,180,'triangle',0.6),190); }
-        function playCorrectSound() { playBeep(800,80); setTimeout(()=>playBeep(1000,80),80); setTimeout(()=>playBeep(1300,220),170); }
-        function playWrongSound() { playBeep(320,300,'sawtooth',0.7); }
 
-        function updateLivesUI() {
-            document.getElementById('lives-display').innerHTML = '❤️'.repeat(lives) + '♡'.repeat(5 - lives);
+        function triggerJumpscare() {
+            const flash = document.getElementById('jumpscare');
+            flash.style.opacity = '0.75';
+            playBeep(60, 450, 'sawtooth', 1);
+            setTimeout(() => { flash.style.opacity = '0'; }, 180);
+
+            let shake = 0;
+            const interval = setInterval(() => {
+                shake++;
+                camera.position.x += (Math.random() - 0.5) * 1.2;
+                camera.position.y += (Math.random() - 0.5) * 0.8;
+                updateCamera();
+                if (shake > 15) clearInterval(interval);
+            }, 16);
+        }
+
+        function updatePhaseUI() {
+            document.getElementById('phase-text').textContent = currentPhase;
+            document.getElementById('phase-info').textContent = currentPhase === 1 ? "Fase 1 - Fábrica Kalmar" : "Fase 2 - Sala Autônoma";
+        }
+
+        function createDoor() {
+            const doorGroup = new THREE.Group();
+            const doorMesh = new THREE.Mesh(
+                new THREE.BoxGeometry(6, 9, 0.5),
+                new THREE.MeshPhongMaterial({ color: 0xffffff, shininess: 100 })
+            );
+            doorMesh.position.set(45, 4.5, 0);
+            doorGroup.add(doorMesh);
+
+            const frame = new THREE.Mesh(
+                new THREE.BoxGeometry(6.8, 9.8, 0.6),
+                new THREE.MeshPhongMaterial({ color: 0x003087 })
+            );
+            frame.position.set(45, 4.5, 0);
+            doorGroup.add(frame);
+
+            scene.add(doorGroup);
+            return doorGroup;
+        }
+
+        function loadPhase(phase) {
+            currentPhase = phase;
+            currentQuestions = phase === 1 ? phase1Questions : phase2Questions;
+            answeredCount = 0;
+
+            orbs.forEach(o => scene.remove(o.group));
+            orbs = [];
+
+            const radius = 33;
+            for (let i = 0; i < currentQuestions.length; i++) {
+                const g = new THREE.Group();
+                const orb = new THREE.Mesh(new THREE.SphereGeometry(1.95,48,48), new THREE.MeshPhongMaterial({color:0xff8800, emissive:0xff4400, emissiveIntensity:1.4}));
+                g.add(orb);
+                const ring = new THREE.Mesh(new THREE.TorusGeometry(2.7,0.3,24,48), new THREE.MeshPhongMaterial({color:0x00ffff, emissive:0x00ffff}));
+                ring.rotation.x = Math.PI/2; g.add(ring);
+                const angle = (i * Math.PI * 2) / currentQuestions.length;
+                g.position.set(Math.cos(angle)*radius, 3.8, Math.sin(angle)*radius);
+                scene.add(g);
+                orbs.push({group:g, mesh:orb, ring:ring, qIndex:i, answered:false, pulse:Math.random()*10});
+            }
+            updatePhaseUI();
         }
 
         function initThree() {
@@ -187,153 +226,199 @@
             sun.position.set(30, 70, 40);
             scene.add(sun);
 
-            // Chão, paredes, teto, estações e pilares (igual ao anterior – mantido)
-            const floor = new THREE.Mesh(new THREE.PlaneGeometry(110, 110), new THREE.MeshLambertMaterial({ color: 0x667788 }));
+            const floor = new THREE.Mesh(new THREE.PlaneGeometry(110,110), new THREE.MeshLambertMaterial({color:0x667788}));
             floor.rotation.x = -Math.PI/2; floor.receiveShadow = true; scene.add(floor);
-            scene.add(new THREE.GridHelper(110, 30, 0x003087, 0xaaccff));
+            scene.add(new THREE.GridHelper(110,30,0x003087,0xaaccff));
 
-            const wallMat = new THREE.MeshLambertMaterial({ color: 0x334455 });
-            const wallHeight = 18, size = 58;
-            const walls = [{pos:[0,wallHeight/2,-size],rot:[0,0,0],size:[size*2,wallHeight,2]},{pos:[0,wallHeight/2,size],rot:[0,0,0],size:[size*2,wallHeight,2]},{pos:[-size,wallHeight/2,0],rot:[0,Math.PI/2,0],size:[size*2,wallHeight,2]},{pos:[size,wallHeight/2,0],rot:[0,Math.PI/2,0],size:[size*2,wallHeight,2]}];
+            const wallMat = new THREE.MeshLambertMaterial({color:0x334455});
+            const wh = 18, sz = 58;
+            const walls = [{pos:[0,wh/2,-sz],rot:[0,0,0],size:[sz*2,wh,2]},{pos:[0,wh/2,sz],rot:[0,0,0],size:[sz*2,wh,2]},{pos:[-sz,wh/2,0],rot:[0,Math.PI/2,0],size:[sz*2,wh,2]},{pos:[sz,wh/2,0],rot:[0,Math.PI/2,0],size:[sz*2,wh,2]}];
             walls.forEach(w => {
                 const wall = new THREE.Mesh(new THREE.BoxGeometry(...w.size), wallMat);
                 wall.position.set(...w.pos); wall.rotation.set(...w.rot);
                 wall.castShadow = wall.receiveShadow = true; scene.add(wall);
             });
 
-            // Janelas, teto e detalhes (mantidos)
-            const windowMat = new THREE.MeshPhongMaterial({ color: 0xaaccff, emissive: 0x88aaff });
-            for (let i = -4; i <= 4; i++) {
-                const win = new THREE.Mesh(new THREE.PlaneGeometry(6, 8), windowMat);
-                win.position.set(i*9, 9, -size+0.1); scene.add(win);
-            }
-            const roof = new THREE.Mesh(new THREE.PlaneGeometry(118, 118), new THREE.MeshLambertMaterial({ color: 0x223344, side: THREE.DoubleSide }));
-            roof.rotation.x = -Math.PI/2; roof.position.y = wallHeight; scene.add(roof);
-
-            // Estações e pilares (mantidos)
-            for (let i = 0; i < 18; i++) {
-                const station = new THREE.Mesh(new THREE.BoxGeometry(5, 3, 5), new THREE.MeshLambertMaterial({ color: i%2===0 ? 0x003087 : 0x112233 }));
-                const angle = (i * Math.PI * 2) / 18;
-                station.position.set(Math.cos(angle)*36, 1.5, Math.sin(angle)*36);
-                station.castShadow = true; scene.add(station);
-                const light = new THREE.PointLight(0xffeeaa, 1.5, 25);
-                light.position.set(station.position.x, 7, station.position.z); scene.add(light);
-            }
-            for (let i = 0; i < 12; i++) {
-                const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 1, 18, 16), new THREE.MeshLambertMaterial({ color: 0xffcc00 }));
-                const ang = (i * Math.PI * 2) / 12;
-                pillar.position.set(Math.cos(ang)*47, 9, Math.sin(ang)*47);
-                scene.add(pillar);
-            }
-
-            // ====================== PERSONAGEM MAIS BONITO ======================
+            // Personagem
             character = new THREE.Group();
-
-            // Corpo (torso com jaqueta Volvo)
-            const torso = new THREE.Mesh(
-                new THREE.BoxGeometry(2.1, 2.6, 1.4),
-                new THREE.MeshLambertMaterial({ color: 0x003087, flatShading: true })
-            );
-            torso.position.y = 2.4;
-            torso.castShadow = true;
-            character.add(torso);
-
-            // Braços
-            const armMat = new THREE.MeshLambertMaterial({ color: 0x112233 });
-            const leftArm = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.3, 2.2, 16), armMat);
-            leftArm.rotation.set(0, 0, Math.PI / 2.5);
-            leftArm.position.set(-1.4, 2.6, 0);
-            character.add(leftArm);
-
-            const rightArm = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.3, 2.2, 16), armMat);
-            rightArm.rotation.set(0, 0, -Math.PI / 2.5);
-            rightArm.position.set(1.4, 2.6, 0);
-            character.add(rightArm);
-
-            // Pernas
-            const legMat = new THREE.MeshLambertMaterial({ color: 0x112233 });
-            const leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.7, 2.4, 0.8), legMat);
-            leftLeg.position.set(-0.7, 0.9, 0);
-            character.add(leftLeg);
-            const rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.7, 2.4, 0.8), legMat);
-            rightLeg.position.set(0.7, 0.9, 0);
-            character.add(rightLeg);
-
-            // Cabeça
-            const head = new THREE.Mesh(new THREE.SphereGeometry(0.82, 40, 40), new THREE.MeshLambertMaterial({ color: 0xffddbb }));
-            head.position.y = 4.8;
-            head.castShadow = true;
-            character.add(head);
-
-            // Capacete Volvo (mais brilhante)
-            const helmet = new THREE.Mesh(new THREE.SphereGeometry(0.88, 40, 40), new THREE.MeshPhongMaterial({ color: 0xffcc00, shininess: 80 }));
-            helmet.position.y = 4.85;
-            helmet.scale.set(0.95, 0.68, 0.95);
-            character.add(helmet);
-
-            // Detalhe de rosto (olhos)
-            const eyeMat = new THREE.MeshPhongMaterial({ color: 0x112233 });
-            const leftEye = new THREE.Mesh(new THREE.SphereGeometry(0.15, 16, 16), eyeMat);
-            leftEye.position.set(-0.3, 4.9, 0.65);
-            character.add(leftEye);
-            const rightEye = leftEye.clone();
-            rightEye.position.x = 0.3;
-            character.add(rightEye);
-
-            // Boca (sorriso simples)
-            const smile = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.05, 8, 16), eyeMat);
-            smile.rotation.x = Math.PI / 2;
-            smile.position.set(0, 4.55, 0.7);
-            character.add(smile);
-
-            // Ferramenta na mão (chave inglesa – símbolo Volvo)
-            const tool = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.08, 0.08, 2.2, 8),
-                new THREE.MeshPhongMaterial({ color: 0x888888, shininess: 60 })
-            );
-            tool.rotation.set(0.8, 0, 0);
-            tool.position.set(1.7, 2.1, 0.4);
-            character.add(tool);
-
-            character.position.set(0, 0.1, 0);
+            const torso = new THREE.Mesh(new THREE.BoxGeometry(2.1,2.6,1.4), new THREE.MeshLambertMaterial({color:0x003087}));
+            torso.position.y = 2.4; torso.castShadow = true; character.add(torso);
+            const armMat = new THREE.MeshLambertMaterial({color:0x112233});
+            const leftArm = new THREE.Mesh(new THREE.CylinderGeometry(0.35,0.3,2.2,16), armMat);
+            leftArm.rotation.set(0,0,Math.PI/2.5); leftArm.position.set(-1.4,2.6,0); character.add(leftArm);
+            const rightArm = leftArm.clone(); rightArm.rotation.z = -Math.PI/2.5; rightArm.position.x = 1.4; character.add(rightArm);
+            const legMat = new THREE.MeshLambertMaterial({color:0x112233});
+            const leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.7,2.4,0.8), legMat); leftLeg.position.set(-0.7,0.9,0); character.add(leftLeg);
+            const rightLeg = leftLeg.clone(); rightLeg.position.x = 0.7; character.add(rightLeg);
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.82,40,40), new THREE.MeshLambertMaterial({color:0xffddbb}));
+            head.position.y = 4.8; head.castShadow = true; character.add(head);
+            const helmet = new THREE.Mesh(new THREE.SphereGeometry(0.88,40,40), new THREE.MeshPhongMaterial({color:0xffcc00, shininess:80}));
+            helmet.position.y = 4.85; helmet.scale.set(0.95,0.68,0.95); character.add(helmet);
+            character.position.set(0,0.1,0);
             scene.add(character);
 
-            // Orbes (mantidos)
-            orbs = [];
-            const radius = 33;
-            for (let i = 0; i < questions.length; i++) {
-                const g = new THREE.Group();
-                const orb = new THREE.Mesh(new THREE.SphereGeometry(1.95, 48, 48), new THREE.MeshPhongMaterial({ color: 0xff8800, emissive: 0xff4400, emissiveIntensity: 1.4 }));
-                g.add(orb);
-                const ring = new THREE.Mesh(new THREE.TorusGeometry(2.7, 0.3, 24, 48), new THREE.MeshPhongMaterial({ color: 0x00ffff, emissive: 0x00ffff }));
-                ring.rotation.x = Math.PI/2; g.add(ring);
-                const angle = (i * Math.PI * 2) / questions.length;
-                g.position.set(Math.cos(angle) * radius, 3.8, Math.sin(angle) * radius);
-                scene.add(g);
-                orbs.push({group:g, mesh:orb, ring:ring, qIndex:i, answered:false, pulse:Math.random()*10});
-            }
+            // Porta branca (aparece só na Fase 1)
+            door = createDoor();
 
+            loadPhase(1);
             updateCamera();
             updateLivesUI();
         }
 
         function updateCamera() {
-            const offsetX = Math.sin(yaw) * cameraDistance;
-            const offsetZ = Math.cos(yaw) * cameraDistance;
-            camera.position.set(character.position.x + offsetX, character.position.y + cameraHeight, character.position.z + offsetZ);
+            const ox = Math.sin(yaw) * cameraDistance;
+            const oz = Math.cos(yaw) * cameraDistance;
+            camera.position.set(character.position.x + ox, character.position.y + cameraHeight, character.position.z + oz);
             camera.lookAt(character.position.x, character.position.y + 3.5, character.position.z);
         }
 
-        // handleMovement, checkProximity, animateOrbs, showQuiz, handleAnswer, etc. (mesmo código do anterior – mantido por brevidade)
-        function handleMovement() { /* mesmo do anterior */ }
-        function checkProximity() { /* mesmo do anterior */ }
-        function animateOrbs() { /* mesmo do anterior */ }
-        function showQuiz(index) { /* mesmo do anterior */ }
-        function handleAnswer(selected, qIndex, correctIdx, correctText, btn) { /* mesmo do anterior */ }
-        function showEndScreen() { /* mesmo do anterior */ }
-        function showGameOver() { /* mesmo do anterior */ }
+        function handleMovement() {
+            const speed = 0.55;
+            let mx = 0, mz = 0;
+
+            if (mobileMode) {
+                const fx = Math.sin(yaw + Math.PI);
+                const fz = Math.cos(yaw + Math.PI);
+                const rx = Math.cos(yaw);
+                const rz = -Math.sin(yaw);
+                mx = (fx * -analogY + rx * analogX) * speed;
+                mz = (fz * -analogY + rz * analogX) * speed;
+            } else {
+                if (keys['w'] || keys['arrowup'])    { mx += Math.sin(yaw + Math.PI); mz += Math.cos(yaw + Math.PI); }
+                if (keys['s'] || keys['arrowdown'])  { mx += Math.sin(yaw); mz += Math.cos(yaw); }
+                if (keys['a'] || keys['arrowleft'])  { mx += Math.cos(yaw); mz += -Math.sin(yaw); }
+                if (keys['d'] || keys['arrowright']) { mx += -Math.cos(yaw); mz += Math.sin(yaw); }
+            }
+
+            const len = Math.sqrt(mx*mx + mz*mz);
+            if (len > 0) {
+                mx = (mx / len) * speed;
+                mz = (mz / len) * speed;
+            }
+
+            character.position.x += mx;
+            character.position.z += mz;
+            character.position.x = Math.max(-50, Math.min(50, character.position.x));
+            character.position.z = Math.max(-50, Math.min(50, character.position.z));
+
+            const bob = Math.sin(Date.now()/110) * 0.13;
+            character.position.y = 0.1 + (len > 0 ? bob : 0);
+            if (len > 0) updateCamera();
+        }
+
+        function checkProximity() {
+            if (isModalOpen) return;
+
+            // Verifica orbes
+            for (let i = 0; i < orbs.length; i++) {
+                const orb = orbs[i];
+                if (orb.answered) continue;
+                if (character.position.distanceTo(orb.group.position) < 6.8) {
+                    isModalOpen = true;
+                    orb.answered = true;
+                    playCollectSound();
+                    showQuiz(orb.qIndex);
+                    orb.mesh.material.emissive.setHex(0x00ff88);
+                    return;
+                }
+            }
+
+            // Verifica porta branca (só na fase 1)
+            if (currentPhase === 1 && door && answeredCount >= 10) {
+                if (character.position.distanceTo(door.position) < 8) {
+                    loadPhase(2);
+                }
+            }
+        }
+
+        function animateOrbs() {
+            orbs.forEach(orb => {
+                if (!orb.answered) {
+                    orb.pulse += 0.038;
+                    const s = 1 + Math.sin(orb.pulse) * 0.19;
+                    orb.mesh.scale.set(s,s,s);
+                    orb.ring.rotation.z += 0.025;
+                }
+            });
+        }
+
+        function showQuiz(index) {
+            document.exitPointerLock();
+            const modal = document.getElementById('modal');
+            const qEl = document.getElementById('questionText');
+            const optEl = document.getElementById('options');
+            const fbEl = document.getElementById('feedback');
+
+            const q = currentQuestions[index];
+            const correctText = q.options[q.correct];
+            let shuffled = [...q.options].sort(() => Math.random() - 0.5);
+            const correctIdx = shuffled.indexOf(correctText);
+
+            qEl.textContent = q.q;
+            optEl.innerHTML = '';
+            fbEl.innerHTML = '';
+
+            shuffled.forEach((txt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = txt;
+                btn.onclick = () => handleAnswer(i, index, correctIdx, correctText, btn);
+                optEl.appendChild(btn);
+            });
+            modal.style.display = 'flex';
+        }
+
+        function handleAnswer(selected, qIndex, correctIdx, correctText, btn) {
+            const isCorrect = selected === correctIdx;
+            const fb = document.getElementById('feedback');
+            document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+
+            if (isCorrect) {
+                score++;
+                lives = Math.min(5, lives + 1);
+                document.getElementById('score').textContent = `${score}/20`;
+                fb.innerHTML = `✅ <strong>Correto!</strong>`;
+                fb.style.color = '#00cc55';
+                playCorrectSound();
+            } else {
+                lives--;
+                fb.innerHTML = `❌ A certa era: <strong>${correctText}</strong>`;
+                fb.style.color = '#cc0000';
+                playWrongSound();
+                triggerJumpscare();
+            }
+            updateLivesUI();
+
+            if (lives <= 0) { setTimeout(showGameOver, 1400); return; }
+
+            setTimeout(() => {
+                document.getElementById('modal').style.display = 'none';
+                isModalOpen = false;
+                answeredCount++;
+                if (answeredCount >= currentQuestions.length && currentPhase === 1) {
+                    // Porta já está visível
+                }
+                if (answeredCount >= currentQuestions.length && currentPhase === 2) {
+                    setTimeout(showEndScreen, 900);
+                }
+            }, 1850);
+        }
+
+        function showEndScreen() {
+            document.getElementById('final-score').textContent = `${score}/20`;
+            document.getElementById('end-screen').style.display = 'flex';
+        }
+        function showGameOver() {
+            document.getElementById('game-over-screen').style.display = 'flex';
+        }
+
         function restartGame() { location.reload(); }
-        function requestPointerLock() { /* mesmo do anterior */ }
+
+        function requestPointerLock() {
+            const canvas = renderer.domElement;
+            canvas.requestPointerLock = canvas.requestPointerLock || canvas.mozRequestPointerLock || canvas.webkitRequestPointerLock;
+            if (canvas.requestPointerLock) canvas.requestPointerLock();
+        }
 
         function animate() {
             requestAnimationFrame(animate);
@@ -345,8 +430,8 @@
             renderer.render(scene, camera);
         }
 
-        // ====================== NOVA FUNÇÃO DE INICIAR O JOGO ======================
-        function startTheGame() {
+        function startGame(mode) {
+            mobileMode = (mode === 'mobile');
             document.getElementById('start-screen').style.opacity = '0';
             setTimeout(() => {
                 document.getElementById('start-screen').style.display = 'none';
@@ -354,27 +439,26 @@
                 initThree();
                 animate();
 
-                // Ativa os controles
-                window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
-                window.addEventListener('keyup',   e => keys[e.key.toLowerCase()] = false);
+                if (!mobileMode) {
+                    window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+                    window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+                    const canvas = renderer.domElement;
+                    canvas.addEventListener('click', () => { if (!isPointerLocked) requestPointerLock(); });
+                    document.addEventListener('pointerlockchange', () => {
+                        isPointerLocked = document.pointerLockElement === canvas;
+                        document.getElementById('crosshair').style.display = isPointerLocked ? 'block' : 'none';
+                    });
+                    document.addEventListener('mousemove', e => {
+                        if (!isPointerLocked) return;
+                        yaw -= e.movementX * 0.0028;
+                        updateCamera();
+                    });
+                } else {
+                    document.getElementById('mobile-controls').style.display = 'block';
+                    initJoystick();
+                    document.getElementById('instructions').innerHTML = 'Arraste o analógico<br>Arraste o dedo na tela para olhar';
+                }
 
-                const canvas = renderer.domElement;
-                const crosshair = document.getElementById('crosshair');
-
-                canvas.addEventListener('click', () => { if (!isPointerLocked) requestPointerLock(); });
-
-                document.addEventListener('pointerlockchange', () => {
-                    isPointerLocked = document.pointerLockElement === canvas;
-                    crosshair.style.display = isPointerLocked ? 'block' : 'none';
-                });
-
-                document.addEventListener('mousemove', e => {
-                    if (!isPointerLocked) return;
-                    yaw -= e.movementX * 0.0028;
-                    updateCamera();
-                });
-
-                // Toggle HUD
                 document.getElementById('toggle-hud').addEventListener('click', () => {
                     hudVisible = !hudVisible;
                     document.getElementById('hud').style.opacity = hudVisible ? '1' : '0.1';
@@ -382,7 +466,6 @@
                     document.getElementById('toggle-hud').textContent = hudVisible ? '⨯ Esconder HUD' : '👁️ Mostrar HUD';
                 });
 
-                // Som
                 document.getElementById('sound-toggle').addEventListener('click', () => {
                     soundEnabled = !soundEnabled;
                     document.getElementById('sound-toggle').textContent = soundEnabled ? '🔊' : '🔇';
@@ -393,13 +476,55 @@
                     camera.updateProjectionMatrix();
                     renderer.setSize(window.innerWidth, window.innerHeight);
                 });
-
-                // Primeira trava do mouse
-                setTimeout(() => requestPointerLock(), 800);
             }, 800);
         }
 
-        console.log('%c✅ Volvismo 3D v6.0 – Tela de Play + Personagem muito mais bonito!', 'color:#ffcc00; font-size:16px; font-weight:bold');
+        function initJoystick() {
+            const base = document.getElementById('joystick-base');
+            const knob = document.getElementById('joystick-knob');
+            let active = false;
+            let startX, startY;
+            const radius = 80;
+
+            base.addEventListener('touchstart', e => {
+                active = true;
+                const touch = e.touches[0];
+                startX = touch.clientX;
+                startY = touch.clientY;
+            });
+
+            base.addEventListener('touchmove', e => {
+                if (!active) return;
+                const touch = e.touches[0];
+                let dx = touch.clientX - startX;
+                let dy = touch.clientY - startY;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist > radius) {
+                    dx = (dx / dist) * radius;
+                    dy = (dy / dist) * radius;
+                }
+                knob.style.transform = `translate(${dx}px, ${dy}px)`;
+                analogX = dx / radius;
+                analogY = dy / radius;
+            });
+
+            base.addEventListener('touchend', () => {
+                active = false;
+                knob.style.transform = 'translate(-50%, -50%)';
+                analogX = 0;
+                analogY = 0;
+            });
+        }
+
+        function updateLivesUI() {
+            document.getElementById('lives-display').innerHTML = '❤️'.repeat(lives) + '♡'.repeat(5 - lives);
+        }
+
+        function playCollectSound() { playBeep(520,90); setTimeout(()=>playBeep(780,110),70); setTimeout(()=>playBeep(1100,180,'triangle',0.6),190); }
+        function playCorrectSound() { playBeep(800,80); setTimeout(()=>playBeep(1000,80),80); setTimeout(()=>playBeep(1300,220),170); }
+        function playWrongSound() { playBeep(320,300,'sawtooth',0.7); }
+
+        console.log('%c✅ Volvismo 3D - 2 Fases completas + Porta Branca + Jumpscare!', 'color:#ffcc00; font-size:16px; font-weight:bold');
     </script>
 </body>
 </html>
