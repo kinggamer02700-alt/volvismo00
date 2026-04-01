@@ -4,17 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#003087">
     <title>Volvismo 3D • Fábrica Autônoma</title>
     <style>
-        body { margin: 0; overflow: hidden; font-family: 'Arial', sans-serif; background: #001122; touch-action: none; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+        body { margin: 0; overflow: hidden; font-family: 'Arial', sans-serif; background: #001122; touch-action: none; }
         canvas { display: block; }
 
         #start-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #003087, #112233); display: flex; align-items: center; justify-content: center; z-index: 3000; color: white; text-align: center; }
         .title-start { font-size: 62px; font-weight: bold; text-shadow: 0 0 30px #ffcc00; letter-spacing: 4px; }
         .mode-container { display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; }
-        .mode-btn { background: #ffcc00; color: #003087; border: none; padding: 20px 50px; font-size: 26px; font-weight: bold; border-radius: 60px; cursor: pointer; box-shadow: 0 10px 30px rgba(255,204,0,0.6); min-width: 220px; }
+        .mode-btn { background: #ffcc00; color: #003087; border: none; padding: 22px 60px; font-size: 28px; font-weight: bold; border-radius: 60px; cursor: pointer; box-shadow: 0 10px 30px rgba(255,204,0,0.6); min-width: 220px; }
 
         #hud { position: absolute; top: 15px; left: 15px; background: rgba(0,48,135,0.92); color: white; padding: 12px 20px; border-radius: 15px; font-size: 19px; font-weight: bold; z-index: 100; display: flex; align-items: center; gap: 15px; border: 2px solid #ffcc00; }
         #phase-info { position: absolute; top: 80px; left: 15px; background: rgba(255,204,0,0.9); color: #003087; padding: 8px 18px; border-radius: 50px; font-weight: bold; z-index: 100; }
@@ -32,19 +30,19 @@
         .option-btn { display:block; width:100%; padding:18px 25px; margin:14px 0; font-size:18px; background:#f8f8f8; border:4px solid #003087; border-radius:16px; cursor:pointer; transition:all .25s; text-align:left; font-weight:500; }
         #feedback { margin-top:25px; font-size:24px; font-weight:bold; min-height:50px; }
 
-        #game-over-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,48,135,0.96); align-items: center; justify-content: center; z-index: 5000; color: white; text-align: center; display: none; }
+        #end-screen, #game-over-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,48,135,0.96); align-items: center; justify-content: center; z-index: 5000; color: white; text-align: center; display: none; }
     </style>
 </head>
 <body>
 
-    <!-- Tela inicial -->
+    <!-- TELA INICIAL -->
     <div id="start-screen">
         <div>
             <h1 class="title-start">🔧 VOLVISMO 3D</h1>
             <p class="subtitle-start">Fábrica Autônoma da Volvo • Anos 70</p>
             <div class="mode-container">
-                <button class="mode-btn" onclick="startGame('pc')">🖥️ PC</button>
-                <button class="mode-btn" onclick="startGame('mobile')">📱 Android / iPhone / iOS</button>
+                <button class="mode-btn" onclick="startGame('pc')">🖥️ MODO PC</button>
+                <button class="mode-btn" onclick="startGame('mobile')">📱 MODO CELULAR / iPHONE</button>
             </div>
         </div>
     </div>
@@ -79,7 +77,7 @@
     </div>
 
     <!-- Vitória -->
-    <div id="end-screen" style="display:none">
+    <div id="end-screen">
         <div>
             <div class="title">🏆 PARABÉNS!</div>
             <p style="font-size:26px;margin:20px 0;">Você completou as 2 fases do Volvismo!</p>
@@ -173,10 +171,9 @@
         }
 
         function showDoorGlow() {
-            if (doorLight) return;
-            doorLight = new THREE.PointLight(0xffffff, 4, 40);
-            doorLight.position.set(52, 5, 2);
-            scene.add(doorLight);
+            const light = new THREE.PointLight(0xffffff, 5, 40);
+            light.position.set(52, 5, 2);
+            scene.add(light);
         }
 
         function loadPhase(phase) {
@@ -293,4 +290,10 @@
 
         function checkProximity() {
             if (isModalOpen) return;
-            for (let i = 0; i < orbs.leng
+            for (let i = 0; i < orbs.length; i++) {
+                const orb = orbs[i];
+                if (orb.answered) continue;
+                if (character.position.distanceTo(orb.group.position) < 6.8) {
+                    isModalOpen = true;
+                    orb.answered = true;
+    
